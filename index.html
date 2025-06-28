@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR Code Generator | Ransara Devnath</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #2c003e, #001f3f);
+      color: #fff;
+      text-align: center;
+      padding: 50px 20px;
+}
+    h1, h2 {
+      text-shadow: 0 0 10px #ff00ff;
+}
+    input {
+      padding: 10px;
+      width: 60%;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      outline: none;
+      box-shadow: 0 0 10px #00ffff;
+}
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #6a00ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 0 15px #00f0ff;
+      transition: 0.3s ease;
+}
+    button:hover {
+      background: #ff0099;
+      box-shadow: 0 0 25px #ff0099;
+}
+    #qrcode {
+      margin-top: 30px;
+}
+    video {
+      margin-top: 20px;
+      box-shadow: 0 0 20px #00ffff;
+      border-radius: 10px;
+}
+.footer {
+      margin-top: 50px;
+      font-size: 14px;
+      color: #aaa;
+}
+  </style>
+</head>
+<body>
+  <h1>✨ QR Code Generator ✨</h1>
+
+  <input type="text" id="text" placeholder="ඔබේ QR Code එකට Text එක මෙතැනට දාන්න"/>
+  <br>
+  <button onclick="generateQR()">Generate QR</button>
+  <div id="qrcode"></div>
+  <br>
+  <button id="downloadBtn" style="display:none;">Download QR</button>
+
+  <hr style="margin: 60px 0;">
+
+  <h2>📷 Scan QR Code</h2>
+  <video id="preview" width="300" playsinline></video>
+
+  <div id="scanBox" style="margin-top: 10px; display: none;">
+    <span id="scanResult" style="font-weight: bold;"></span><br>
+    <button onclick="copyScanned()" style="margin-top: 8px;">📋 Copy</button>
+  </div>
+
+  <div class="footer">Developed by Ransara Devnath</div>
+
+  <!-- QR Generate Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- QR Reader Library -->
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+
+  <script>
+    // Generate QR
+    let qr;
+    function generateQR() {
+      const container = document.getElementById("qrcode");
+      container.innerHTML = "";
+      const text = document.getElementById("text").value;
+      qr = new QRCode(container, {
+        text: text,
+        width: 200,
+        height: 200,
+        colorDark: "#ffffff",
+        colorLight: "#000000",
+});
+      setTimeout(() => {
+        const img = document.querySelector("#qrcode img");
+        if (img) {
+          document.getElementById("downloadBtn").style.display = "inline-block";
+          document.getElementById("downloadBtn").onclick = () => {
+            const link = document.createElement("a");
+            link.href = img.src;
+            link.download = "qr-code.png";
+            link.click();
+};
+}
+}, 500);
+}
+
+    // QR Scan
+    const video = document.getElementById('preview');
+    const scanResult = document.getElementById('scanResult');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment'}})
+.then(function(stream) {
+        video.srcObject = stream;
+        video.play();
+        requestAnimationFrame(tick);
+});
+
+    function tick() {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+     const code = jsQR(imageData.data, imageData.width, imageData.height, {
+        inversionAttempts: "dontInvert"
+});
+
+      if (code) {
+        scanResult.textContent = "📄 Scanned Content: " + code.data;
+        document.getElementById("scanBox").style.display = "block";
+} else {
+        scanResult.textContent = "";
+        document.getElementById("scanBox").style.display = "none";
+}
+      requestAnimationFrame(tick);
+}
+
+    function copyScanned() {
+      const text = scanResult.textContent.replace("📄 Scanned Content: ", "");
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Copied to clipboard!");
+});
+}
+  </script>
+</body>
+</html>
