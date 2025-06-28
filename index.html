@@ -43,6 +43,10 @@
 }
     #qrcode {
       margin-top: 30px;
+      background-color: #ffffff;
+      padding: 10px;
+      display: inline-block;
+      border-radius: 10px;
 }
     video {
       margin-top: 20px;
@@ -84,13 +88,16 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
   <script>
+    let qrInstance;
+
     function generateQR() {
       const container = document.getElementById("qrcode");
-      container.innerHTML = "";
+      container.innerHTML = ""; // clear previous
+
       const text = document.getElementById("text").value.trim();
       if (!text) return;
 
-      new QRCode(container, {
+      qrInstance = new QRCode(container, {
         text: text,
         width: 200,
         height: 200,
@@ -98,8 +105,9 @@
         colorLight: "#ffffff"
 });
 
+      document.getElementById("downloadBtn").style.display = "none";
       setTimeout(() => {
-        const img = document.querySelector("#qrcode img");
+        const img = container.querySelector("img");
         if (img) {
           document.getElementById("downloadBtn").style.display = "inline-block";
           document.getElementById("downloadBtn").onclick = () => {
@@ -125,12 +133,12 @@
 
     function tick() {
       if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        const canvas = document.createElement('canvas');
+     const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
         const code = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "dontInvert"});
 
         if (code) {
