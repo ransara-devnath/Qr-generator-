@@ -85,18 +85,20 @@
 
   <script>
     // Generate QR
-    let qr;
     function generateQR() {
       const container = document.getElementById("qrcode");
       container.innerHTML = "";
       const text = document.getElementById("text").value;
-      qr = new QRCode(container, {
+      if (!text) return;
+
+      const qr = new QRCode(container, {
         text: text,
         width: 200,
         height: 200,
-        colorDark: "#ffffff",
-        colorLight: "#000000",
+        colorDark: "#000000",
+        colorLight: "#ffffff"
 });
+
       setTimeout(() => {
         const img = document.querySelector("#qrcode img");
         if (img) {
@@ -114,6 +116,8 @@
     // QR Scan
     const video = document.getElementById('preview');
     const scanResult = document.getElementById('scanResult');
+    const scanBox = document.getElementById('scanBox');
+
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment'}})
 .then(function(stream) {
         video.srcObject = stream;
@@ -122,31 +126,35 @@
 });
 
     function tick() {
-      const canvas = document.createElement('canvas');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-     const code = jsQR(imageData.data, imageData.width, imageData.height, {
-        inversionAttempts: "dontInvert"
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, imageData.width, imageData.height, {
+          inversionAttempts: "dontInvert"
 });
 
-      if (code) {
-        scanResult.textContent = "📄 Scanned Content: " + code.data;
-        document.getElementById("scanBox").style.display = "block";
+        if (code) {
+          scanResult.textContent = "📄 Scanned Content: " + code.data;
+          scanBox.style.display = "block";
 } else {
-        scanResult.textContent = "";
-        document.getElementById("scanBox").style.display = "none";
+          scanBox.style.display = "none";
+          scanResult.textContent = "";
+}
 }
       requestAnimationFrame(tick);
 }
 
     function copyScanned() {
       const text = scanResult.textContent.replace("📄 Scanned Content: ", "");
-      navigator.clipboard.writeText(text).then(() => {
-        alert("Copied to clipboard!");
+      if (text) {
+        navigator.clipboard.writeText(text).then(() => {
+          alert("Copied to clipboard!");
 });
+}
 }
   </script>
 </body>
