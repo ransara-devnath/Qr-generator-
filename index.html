@@ -84,14 +84,13 @@
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 
   <script>
-    // Generate QR
     function generateQR() {
       const container = document.getElementById("qrcode");
       container.innerHTML = "";
-      const text = document.getElementById("text").value;
+      const text = document.getElementById("text").value.trim();
       if (!text) return;
 
-      const qr = new QRCode(container, {
+      new QRCode(container, {
         text: text,
         width: 200,
         height: 200,
@@ -113,7 +112,6 @@
 }, 500);
 }
 
-    // QR Scan
     const video = document.getElementById('preview');
     const scanResult = document.getElementById('scanResult');
     const scanBox = document.getElementById('scanBox');
@@ -131,18 +129,16 @@
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         const ctx = canvas.getContext('2d');
-       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const code = jsQR(imageData.data, imageData.width, imageData.height, {
-          inversionAttempts: "dontInvert"
-});
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imageData.data, canvas.width, canvas.height, { inversionAttempts: "dontInvert"});
 
         if (code) {
           scanResult.textContent = "📄 Scanned Content: " + code.data;
           scanBox.style.display = "block";
 } else {
-          scanBox.style.display = "none";
           scanResult.textContent = "";
+          scanBox.style.display = "none";
 }
 }
       requestAnimationFrame(tick);
