@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Internet Speed Meter</title>
+  <title>Your IP Address</title>
   <meta name="author" content="Ransara Devnath" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
     body {
       margin: 0;
@@ -12,6 +12,7 @@
       background: linear-gradient(120deg, #2c003e, #0b1e4a);
       color: #fff;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
@@ -19,22 +20,23 @@
       padding: 20px;
 }
 
-.meter-box {
+.box {
       background: rgba(255,255,255,0.05);
+      padding: 30px;
       border-radius: 12px;
-      padding: 25px;
       box-shadow: 0 0 25px #8b00ff;
       max-width: 400px;
-      width: 100%;
+      width: 90%;
 }
 
     h1 {
-      margin-bottom: 10px;
+      font-size: 26px;
+      margin-bottom: 15px;
 }
 
-    #speed {
-      font-size: 32px;
-      margin-top: 10px;
+    #ip {
+      font-size: 22px;
+      margin: 10px 0;
       color: #00ffcc;
 }
 
@@ -45,60 +47,59 @@
 }
 
     button {
-      margin-top: 15px;
-      padding: 8px 18px;
-      background: #4e0d85;
-      color: white;
+      background: #420d75;
       border: none;
-      border-radius: 6px;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 0 10px #a455ff;
+      box-shadow: 0 0 10px #c084fc;
       font-size: 16px;
+      margin-top: 10px;
 }
 
     button:hover {
       background: #673ab7;
-      box-shadow: 0 0 15px #c084fc;
-}
-
-    @media screen and (max-width: 500px) {
-      h1 { font-size: 22px;}
-      #speed { font-size: 24px;}
+      box-shadow: 0 0 15px #b388ff;
 }
   </style>
 </head>
 <body>
-  <div class="meter-box">
-    <h1>📶 Internet Speed</h1>
-    <p>Real-time download speed</p>
-    <div id="speed">--</div>
-    <button onclick="checkSpeed()">🔁 Reload</button>
+  <div class="box">
+    <h1>🌍 Your Public IP</h1>
+    <div id="ip">Loading...</div>
+    <button onclick="getIP()">🔁 Refresh</button>
     <div class="footer">Developed by Ransara Devnath</div>
   </div>
 
   <script>
-    async function checkSpeed() {
-      const image = new Image();
-      const imageSize = 100000; // 100KB
-      const startTime = performance.now();
-      image.src = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?t=" + startTime;
+    async function getIP() {
+      const ipBox = document.getElementById("ip");
+      ipBox.textContent = "Loading...";
 
-      image.onload = () => {
-        const endTime = performance.now();
-        const duration = (endTime - startTime) / 1000; // in seconds
-        const speedBps = imageSize / duration;
-        const speedKbps = speedBps / 1024;
-        const speedMbps = speedKbps / 1024;
-        document.getElementById("speed").textContent = speedMbps.toFixed(2) + " Mbps";
-};
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
 
-      image.onerror = () => {
-        document.getElementById("speed").textContent = "Unable to load";
-};
+        const ip = data.ip;
+        const country = data.country_name;
+        const countryCode = data.country_code;
+
+        const flag = countryCodeToEmoji(countryCode);
+        ipBox.textContent = `${ip} ${flag} (${country})`;
+
+} catch (err) {
+        ipBox.textContent = "Unable to fetch IP info 😢";
+}
 }
 
-    setInterval(checkSpeed, 5000); // auto-check every 5 sec
-    checkSpeed(); // initial check
+    function countryCodeToEmoji(cc) {
+      if (!cc) return "";
+      const codePoints = [...cc.toUpperCase()].map(char => 127397 + char.charCodeAt());
+      return String.fromCodePoint(...codePoints);
+}
+
+    getIP();
   </script>
 </body>
 </html>
