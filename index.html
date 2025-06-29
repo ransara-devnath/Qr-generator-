@@ -2,85 +2,103 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Text to Emoji Converter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Internet Speed Meter</title>
   <meta name="author" content="Ransara Devnath" />
   <style>
     body {
       margin: 0;
-      font-family: sans-serif;
-      background: linear-gradient(to right, #2c003e, #0b1e4a);
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(120deg, #2c003e, #0b1e4a);
       color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-}
-.container {
       text-align: center;
       padding: 20px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      box-shadow: 0 0 25px #8b00ff;
 }
-    textarea {
-      width: 80%;
-      height: 100px;
-      border-radius: 8px;
-      padding: 10px;
+
+.meter-box {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 0 25px #8b00ff;
+      max-width: 400px;
+      width: 100%;
+}
+
+    h1 {
+      margin-bottom: 10px;
+}
+
+    #speed {
+      font-size: 32px;
+      margin-top: 10px;
+      color: #00ffcc;
+}
+
+.footer {
+      margin-top: 20px;
+      font-size: 14px;
+      opacity: 0.6;
+}
+
+    button {
+      margin-top: 15px;
+      padding: 8px 18px;
+      background: #4e0d85;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 0 10px #a455ff;
       font-size: 16px;
 }
-    button {
-      margin-top: 10px;
-      background: #420d75;
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      box-shadow: 0 0 10px #c084fc;
-}
+
     button:hover {
       background: #673ab7;
-      box-shadow: 0 0 15px #b388ff;
+      box-shadow: 0 0 15px #c084fc;
 }
-    #outputEmoji {
-      margin-top: 15px;
-      font-size: 18px;
-      word-break: break-word;
+
+    @media screen and (max-width: 500px) {
+      h1 { font-size: 22px;}
+      #speed { font-size: 24px;}
 }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Text ➜ Emoji</h1>
-    <textarea id="inputText" placeholder="Type your text here..."></textarea><br>
-    <button onclick="convertText()">Convert ✨</button>
-    <div id="outputEmoji"></div>
-    <button onclick="copyText()">📋 Copy</button>
+  <div class="meter-box">
+    <h1>📶 Internet Speed</h1>
+    <p>Real-time download speed</p>
+    <div id="speed">--</div>
+    <button onclick="checkSpeed()">🔁 Reload</button>
+    <div class="footer">Developed by Ransara Devnath</div>
   </div>
 
   <script>
-    function convertText() {
-      const input = document.getElementById("inputText").value;
-      const emojiText = input
-.split("")
-.map(char => {
-          if (char.match(/[a-zA-Z]/)) {
-            return `:${char.toLowerCase()}:`;
-} else {
-            return char;
-}
-})
-.join(" ");
-      document.getElementById("outputEmoji").innerText = emojiText;
+    async function checkSpeed() {
+      const image = new Image();
+      const imageSize = 100000; // 100KB
+      const startTime = performance.now();
+      image.src = "https://upload.wikimedia.org/wikipedia/commons/3/3f/Fronalpstock_big.jpg?t=" + startTime;
+
+      image.onload = () => {
+        const endTime = performance.now();
+        const duration = (endTime - startTime) / 1000; // in seconds
+        const speedBps = imageSize / duration;
+        const speedKbps = speedBps / 1024;
+        const speedMbps = speedKbps / 1024;
+        document.getElementById("speed").textContent = speedMbps.toFixed(2) + " Mbps";
+};
+
+      image.onerror = () => {
+        document.getElementById("speed").textContent = "Unable to load";
+};
 }
 
-    function copyText() {
-      const output = document.getElementById("outputEmoji").innerText;
-      navigator.clipboard.writeText(output).then(() => {
-        alert("Emoji text copied!");
-});
-}
+    setInterval(checkSpeed, 5000); // auto-check every 5 sec
+    checkSpeed(); // initial check
   </script>
 </body>
 </html>
